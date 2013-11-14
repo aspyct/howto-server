@@ -16,7 +16,12 @@ def json_endpoint(obj):
     return exposed(json_wrapper)
 
 
-class Server(object):
+class Server:
+    def __init__(self, config):
+        self.v1 = ServerV1(config)
+
+
+class ServerV1(object):
     def __init__(self, config):
         self._blog = HowToClient(config['tumblr'])
 
