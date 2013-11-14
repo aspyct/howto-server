@@ -34,6 +34,10 @@ class ServerV1(object):
         return self._blog.post(post_id)
 
 
+# Next versions should inherit V1
+# class ServerV2(ServerV1): ...
+
+
 class HowToClient(object):
     # IMPORTANT: never put an `exposed` attribute on this class
     def __init__(self, config):
