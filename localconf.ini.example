@@ -1,4 +1,6 @@
 # Copy this file to localconf.ini, and put some meaningful values
-blog_name = <the name of the blog on tumblr>
-tumblr_key = <your tumblr client key>
-tumblr_secret = <your tumblr client secret>
+[tumblr]
+blog = <the name of the blog on tumblr>
+tag = DIY # Or the tag to identify DIY posts
+key = <your tumblr client key>
+secret = <your tumblr client secret>
