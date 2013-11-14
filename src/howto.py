@@ -59,17 +59,15 @@ class HowToClient(object):
                 raise TumblrServerError(raw)
 
     def format_post(self, raw_post):
-        if self.is_howto(raw_post):
+        self.validate_howto(raw_post)
 
-            post = {
-                'url': raw_post['short_url'],
-            }
+        post = {
+            'url': raw_post['short_url'],
+        }
 
-            post['name'], post['steps'] = self.parse_body(raw_post)
+        post['name'], post['steps'] = self.parse_body(raw_post)
 
-            return post
-        else:
-            raise CannotParseHowtoException("This does not appear to be a howto")
+        return post
 
     def parse_body(self, raw_post):
         text = raw_post['caption']
@@ -81,8 +79,12 @@ class HowToClient(object):
 
         return parser.parse(text)
     
-    def is_howto(self, raw_post):
-        return self.tag in raw_post['tags'] and raw_post['type'] == 'photo'
+    def validate_howto(self, raw_post):
+        if self.tag and self.tag not in raw_post['tags']:
+            raise CannotParseHowtoException('Does not contain the adequate tag')
+
+        if raw_post['type'] != 'photo':
+            raise CannotParseHowtoException('Not a photo post')
 
 
 class HowtoHtmlParser(object):
@@ -113,7 +115,7 @@ class HowtoHtmlParser(object):
 
             match = matcher.search(text, start_pos)
             if match is None:
-                yield text[start_pos:]
+                yield text[start_pos:].rstrip()
                 break
             else:
                 start, end = match.span()
