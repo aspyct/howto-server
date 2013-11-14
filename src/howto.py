@@ -51,7 +51,6 @@ class HowToClient(object):
             # We have it !
             return self.format_post(raw['posts'][0])
         else:
-
             status = raw["meta"]["status"]
             if status / 100 == 4:
                 return None
