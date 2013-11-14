@@ -35,7 +35,7 @@ class ServerV1(object):
 
 
 class HowToClient(object):
-    # IMPORTANT: never put a `exposed` attribute on this class
+    # IMPORTANT: never put an `exposed` attribute on this class
     def __init__(self, config):
         self.blogname = config['blog']
         self.tumblr = pytumblr.TumblrRestClient(
