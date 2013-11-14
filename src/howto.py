@@ -1,6 +1,7 @@
 import pytumblr
 import json
 from HTMLParser import HTMLParser
+import re
 
 def exposed(obj):
     obj.exposed = True
@@ -68,21 +69,59 @@ class HowToClient(object):
 
             return post
         else:
-            raise PostIsNotHowtoException()
+            raise CannotParseHowtoException("This does not appear to be a howto")
 
     def parse_body(self, raw_post):
         text = raw_post['caption']
 
         if raw_post['format'] == 'html':
-            text = strip_tags(text)
+            parser = HowtoHtmlParser()
+        else:
+            raise ValueError("Can only parse HTML bodies for now")
 
-        return 'hello', text
+        return parser.parse(text)
     
     def is_howto(self, raw_post):
         return self.tag in raw_post['tags'] and raw_post['type'] == 'photo'
 
 
-class PostIsNotHowtoException(Exception):
+class HowtoHtmlParser(object):
+    def parse(self, text):
+        text = strip_tags(text)
+
+        # first, parse the title
+        # i.e. take everything until the first step
+        end = text.find('1.')
+
+        if end == -1:
+            raise CannotParseHowtoException("No first step found")
+
+        stepgen = self.step_generator(text)
+
+        title = next(stepgen)
+        steps = list(stepgen)
+
+        return title, steps
+
+    def step_generator(self, text):
+        start_pos = 0
+        next_step = 1
+        
+        while 1:
+            pattern = r'\s*0?{}\.\s*'.format(next_step)
+            matcher = re.compile(pattern)
+
+            match = matcher.search(text, start_pos)
+            if match is None:
+                yield text[start_pos:]
+                break
+            else:
+                start, end = match.span()
+                yield text[start_pos:start]
+                start_pos = end
+                next_step += 1
+
+class CannotParseHowtoException(Exception):
     pass
 
 class TumblrServerError(Exception):
